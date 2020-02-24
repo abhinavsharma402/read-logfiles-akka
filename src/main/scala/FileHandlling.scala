@@ -1,6 +1,6 @@
 import java.io.File
 
-import akka.actor.{Actor, ActorRef, ActorSystem, Props}
+import akka.actor.{Actor, ActorRef, ActorSystem, Props,ActorLogging}
 import akka.pattern.ask
 import akka.util.Timeout
 
@@ -9,7 +9,7 @@ import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
 import scala.io.Source
 
-class CheckFile extends Actor {
+class FileOperation extends Actor {
 
   override def receive: Receive = {
     case "checkFilesOrFoldersList" =>
@@ -31,6 +31,7 @@ class CheckFile extends Actor {
     case "averageWarnings" =>
       val warnings = averageWarnings(FileHandling.warnings)
       sender() ! warnings
+    case _ => sender() ! "invalid"
 
 
   }
@@ -72,7 +73,7 @@ class CheckFile extends Actor {
 
 object FileHandling extends App {
   val system = ActorSystem("LogFilesActorSystem")
-  val ref = system.actorOf(Props[CheckFile], "FileHandling")
+  val ref = system.actorOf(Props[FileOperation], "FileHandling")
   val pathObj = new File("/home/knoldus/Downloads/logfiles")
   val filesOrFoldersList = pathObj.listFiles().toList
   implicit val timeout = Timeout(5. seconds)
@@ -88,6 +89,7 @@ object FileHandling extends App {
   val info = (Await.result(futureInfo, 5.seconds))
   val futureaverageWarnings = (ref ? "averageWarnings").mapTo[Int]
   val averagewarnings = (Await.result(futureaverageWarnings, 5.seconds))
+
   println(averagewarnings)
 
 
