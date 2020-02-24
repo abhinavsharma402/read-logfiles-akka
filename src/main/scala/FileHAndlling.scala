@@ -13,9 +13,9 @@ class CheckFile extends Actor {
 
   override def receive: Receive = {
     case "checkFilesOrFoldersList" =>
-      val files1 = checkFile(FileHandling.filesOrFoldersList)
+      val files = checkFile(FileHandling.filesOrFoldersList)
 
-      sender() ! files1
+      sender() ! files
     case "readFile" =>
       val contents = readFile(FileHandling.filesList)
       sender() ! contents
